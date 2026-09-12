@@ -1,0 +1,47 @@
+clc; close; clear;
+
+W = 400;
+H = 300;
+
+N = 100;
+xbs = randi([1,W],1,N);
+ybs = randi([1,H],1,N);
+
+% xbs = [100 200 300 150 250 100 200 300 170];
+% ybs = [75 75 75 150 150 225 255 280 67];
+% N = length(xbs);
+
+Pbs = ones(1,N);
+
+Rbs = randi([0,255],1,N);
+Gbs = randi([0,255],1,N);
+Bbs = randi([0,255],1,N);
+
+% Rbs = [255 128 128 0 0 0 0 128 127];
+% Gbs = [0 128 0 255 128 0 0 128 127];
+% Bbs = [0 0 128 0 128 255 0 128 127];
+
+
+colourmap = zeros(H,W,3);
+for i = 1:W
+    for j = 1:H
+        TO = 0;
+        PB = 0;
+        for BS = 1:N
+            if PB<Pbs(BS)/((i-xbs(BS))^2+(j-ybs(BS))^2)
+                TO = BS;
+                PB = Pbs(BS)/((i-xbs(BS))^2+(j-ybs(BS))^2);
+            end
+        end
+        colourmap(j,i,1) = Rbs(TO);
+        colourmap(j,i,2) = Gbs(TO);
+        colourmap(j,i,3) = Bbs(TO);
+    end
+end
+
+% for T = 1:W
+% end
+
+image(colourmap/255);
+hold on
+scatter(xbs,ybs,'black');
