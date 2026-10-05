@@ -1,0 +1,121 @@
+clc; close; clear;
+
+W = 8;
+H = 8;
+
+N = 3;
+difgen = 10;
+% rng(2)
+xbs = randi([round(W/5),round(W-(W/5))],difgen,N);
+ybs = randi([round(H/5),round(H-(H/5))],difgen,N);
+
+
+Cbs = randi([0,255],3,N);
+
+colourmap = zeros(H,W,3);
+tic
+for iter = 1:1000
+    plosh = zeros(difgen,N);
+    for gen = 1:difgen
+        for i = 1:W
+            for j = 1:H
+                TO = 0;
+                RB = H^2+W^2;
+                for BS = 1:N
+                    if RB>(i-xbs(gen,BS))^2+(j-ybs(gen,BS))^2
+                        TO = BS;
+                        RB = (i-xbs(gen,BS))^2+(j-ybs(gen,BS))^2;
+                    end
+                end
+                plosh(gen,TO) = plosh(gen,TO)+1;
+            end
+        end
+    end
+    coof=(max(plosh,[],2)-min(plosh,[],2))./max(plosh,[],2);
+    if min(coof)>0.0455
+%     if min(coof)>0.05
+        survive=zeros(1,2);
+        [~, survive(1)] = min(coof);
+        [~, survive(2)] = min([coof(1:survive(1)-1);1; coof(survive(1)+1:end)]);
+        xbs(1:2,:)=xbs(survive(1:2),:);
+        ybs(1:2,:)=ybs(survive(1:2),:);
+        xbs(3:4,:)=xbs(1:2,:);
+        ybs(3:4,:)=ybs(1:2,:);
+        xbs(5:6,:)=xbs(1:2,:);
+        ybs(5:6,:)=ybs(1:2,:);
+        xbs(7:8,:)=xbs(1:2,:);
+        ybs(7:8,:)=ybs(1:2,:);
+        xbs(9:10,:)=xbs(1:2,:);
+        ybs(9:10,:)=ybs(1:2,:);
+        mut = randi([1 N],1,1);
+        xbs(3:6,mut)=randi([1 W],4,1);
+        ybs(3:6,mut)=randi([1 H],4,1);
+        xbs(7:10,mut)=xbs(7:10,mut)+randi([-ceil(W/10) ceil(W/10)],4,1);
+        ybs(7:10,mut)=ybs(7:10,mut)+randi([-ceil(H/10) ceil(H/10)],4,1);
+        xbs = xbs.*(xbs>1).*(xbs<=W)+W*(xbs>W)+(xbs<1);
+        ybs = ybs.*(ybs>1).*(ybs<=H)+H*(ybs>H)+(ybs<1);
+    else
+        break
+    end
+end
+toc
+clear mut iter plosh survive difgen gen;
+disp(min(coof))
+[~, GG] = min(coof);
+for i = 1:W
+    for j = 1:H
+        TO = 0;
+        RB = H^2+W^2;
+        for BS = 1:N
+            if RB>(i-xbs(GG,BS))^2+(j-ybs(GG,BS))^2
+                TO = BS;
+                RB = (i-xbs(GG,BS))^2+(j-ybs(GG,BS))^2;
+            end
+        end
+        colourmap(j,i,:) = Cbs(:,TO);
+    end
+end
+image(colourmap/255);
+hold on
+scatter(xbs(GG,:),ybs(GG,:),'black');
+clear RB TO Cbs BS;
+
+t = 0;
+if H == 8 && W == 8 && N == 3 && min(coof)<0.0455
+    for ih = 1:8
+        for iw = 1:8
+%             for jh = 1:8
+            for jh = ih:8
+                for jw = 1:8
+                    if jh == ih && jw <=iw
+                        break
+                    end
+%                     for kh = 1:8
+                    for kh = jh:8
+                        for kw = 1:8
+                            if kh == jh && kw <=jw
+                                break
+                            end
+                            abc = [0 0 0];
+                            for i = 1:8
+                                for j = 1:8
+                                    [~,I] = min([(i-iw)^2+(j-ih)^2 (i-jw)^2+(j-jh)^2 (i-kw)^2+(j-kh)^2]);
+                                    abc(I) = abc(I) + 1;
+                                end
+                            end
+                            coof2 = (max(abc)-min(abc))/max(abc);
+                            if sum(abc)~=64
+                                disp(1)
+                            end
+                            if coof2 <0.0455
+                                t = t+1;
+%                                 disp([ih jh kh;iw jw kw])
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+clear i j ih iw jh jw kw kh I coof2 abc;
