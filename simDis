@@ -80,10 +80,14 @@ hold on
 scatter(xbs(GG,:),ybs(GG,:),'black');
 clear RB TO Cbs BS;
 
-t = 0;
 if H == 8 && W == 8 && N == 3 && min(coof)<0.0455
-    for ih = 1:8
-        for iw = 1:8
+    t = 0;
+    xt = zeros(55,3);
+    yt = zeros(55,3);
+%     for ih = 1:8
+    for ih = 1:4
+%         for iw = 1:8
+        for iw = ih:4
 %             for jh = 1:8
             for jh = ih:8
                 for jw = 1:8
@@ -109,6 +113,8 @@ if H == 8 && W == 8 && N == 3 && min(coof)<0.0455
                             end
                             if coof2 <0.0455
                                 t = t+1;
+                                xt(t,:)=[iw jw kw];
+                                yt(t,:)=[ih jh kh];
 %                                 disp([ih jh kh;iw jw kw])
                             end
                         end
